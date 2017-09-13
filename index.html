@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+    <header class="contact">
+        <section class="contact--details">
+            <h1 class="contact--details__name online">Flex-box Chat!</h1>
+            <p class="contact--details__tel"></p>
+        </section>
+    </header>
+    <section class="messages">
+        <section>
+            <h3 class="msg--date">Today - 10:00</h3>
+            <div class="msg msg--me">
+                <blockquote>Sorry, I have a lot of work, I`m fine thank you, and you?</blockquote>
+            </div>
+            <div class="msg msg--them">
+                <blockquote>Hei, why you ignore me yesterday?</blockquote>
+            </div>
+        </section>
+        <section>
+            <h3 class="msg--date">Yesterday - 08:17</h3>
+            <div class="msg msg--them">
+                <blockquote>How are you?</blockquote>
+            </div>
+            <div class="msg msg--me">
+                <blockquote>Nice to meet you Dima, I`m Alice</blockquote>
+            </div>
+            <div class="msg msg--them">
+                <blockquote>Hi, my name is Dima!</blockquote>
+            </div>
+        </section>
+    </section>
+    <form>
+        <input type="text" placeholder="Your message" id="inputField">
+        <button id="Send" onclick="newMessage()">Send</button>
+    </form>
+
+    <script src="http://web.bidon-tech.com:65060/socket.io/socket.io.js"></script>
+    <script>
+        let socket = io('http://web.bidon-tech.com:65060');
+        let that = this;
+        let input = document.getElementById('inputField');
+
+        socket.on('connect', function () {
+            console.log('connected');
+
+            that.newMessage = () =>{
+                socket.emit('message', input.value);
+            };
+
+            socket.on('online', online => {
+                console.log('server online', online);
+            });
+
+            socket.on('message', message => {
+                console.log('new message', message);
+            });
+
+        });
+    </script>
+
+</body>
+</html>
