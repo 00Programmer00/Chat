@@ -19,15 +19,9 @@
 
         socket.on('connect', function () {
             console.log('connected');
-
             that.Login = () =>{
-                socket.emit('nickname', input.value, response => {
-                    console.log('chat history', response);
-                });
+
             };
-
-
-
         });
     </script>
 
