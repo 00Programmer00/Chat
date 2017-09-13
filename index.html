@@ -16,31 +16,14 @@
         </section>
     </header>
     <section class="messages">
-        <section>
-            <h3 class="msg--date">Today - 10:00</h3>
-            <div class="msg msg--me">
-                <blockquote>Sorry, I have a lot of work, I`m fine thank you, and you?</blockquote>
-            </div>
-            <div class="msg msg--them">
-                <blockquote>Hei, why you ignore me yesterday?</blockquote>
-            </div>
+        <section id="messagesSection">
+            <h3 class="msg--date">Today</h3>
         </section>
-        <section>
-            <h3 class="msg--date">Yesterday - 08:17</h3>
-            <div class="msg msg--them">
-                <blockquote>How are you?</blockquote>
-            </div>
-            <div class="msg msg--me">
-                <blockquote>Nice to meet you Dima, I`m Alice</blockquote>
-            </div>
-            <div class="msg msg--them">
-                <blockquote>Hi, my name is Dima!</blockquote>
-            </div>
-        </section>
+
     </section>
-    <form>
+    <form action="">
         <input type="text" placeholder="Your message" id="inputField">
-        <button id="Send" onclick="newMessage()">Send</button>
+        <button id="Send" onclick="newMessage(event)">Send</button>
     </form>
 
     <script src="http://web.bidon-tech.com:65060/socket.io/socket.io.js"></script>
@@ -54,11 +37,33 @@
             socket.on('connect', function () {
                 console.log('connected');
 
-                that.newMessage = () =>{
+                that.newMessage = (e) =>{
+                    console.log("Hello");
+                    e.preventDefault();
                     socket.emit('message', inputText.value);
+                    let div = document.createElement('div');
+                    div.className = 'msg msg--me';
+                    let quote = document.createElement('blockquote');
+                    quote.innerText = inputText.value;
+                    div.appendChild(quote);
+                    let section = document.getElementById('messagesSection');
+                    section.appendChild(div);
+
+
+
                 };
 
                 socket.emit('nickname', input.value, response => {
+                    response.map(function (message) {
+                        let div = document.createElement('div');
+                        div.className = 'msg msg--them';
+                        let quote = document.createElement('blockquote');
+                        quote.innerText = 'User: ' + message.nickname + '\n ' + message.message;
+                        div.appendChild(quote);
+                        let section = document.getElementById('messagesSection');
+                        section.appendChild(div);
+                    });
+
                     console.log('chat history', response);
                 });
 
