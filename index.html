@@ -14,7 +14,7 @@
             <button onclick="connect()" id="logbtn">Log in</button>
         </section>
     </header>
-    <section class="messages">
+    <section class="messages" id="messagesDiv">
         <section id="messagesSection">
             <h3 class="msg--date">Today</h3>
         </section>
@@ -43,32 +43,40 @@
                 logbtn.remove();
                 login.remove(); 
                 head.appendChild(div);
+                function scrollToBottom() {
+                    let body = document.querySelector('#messagesDiv');
+                    body.scrollTop = body.scrollHeight
+                }
                 that.newMessage = (e) =>{
                     e.preventDefault();
                     socket.emit('message', inputText.value);
+                    inputText.value = '';
                 };
+                
                 socket.emit('nickname', input.value, response => {
                     response.map(function (message) {
                         drawMessage(message);
                     });
                     console.log('chat history', response);
                 });
+
                 socket.on('online', online => {
                     console.log('server online', online);
                 });
                 socket.on('message', message => {
                     drawMessage(message);
                 });
+                
+
                 function drawMessage(message){
-                  
                     let div = document.createElement('div');
                     div.className = 'msg ' + (message.nickname === currentUser ? 'msg--me' : 'msg--them');
                     let quote = document.createElement('blockquote');
                     quote.innerText = 'User: ' + message.nickname + '\n ' + message.message;
                     div.appendChild(quote);
                     let section = document.getElementById('messagesSection');
-                    section.appendChild(div);
-                
+                    section.appendChild(div); 
+                    scrollToBottom ();
                 }
             });
         }
