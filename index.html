@@ -15,6 +15,7 @@
         </section>
     </header>
     <section class="messages" id="messagesDiv">
+
         <section id="messagesSection">
             <h3 class="msg--date">Today</h3>
         </section>
@@ -38,6 +39,7 @@
                 let logbtn = document.getElementById('logbtn');
                 let head = document.getElementById('Head');
                 let div = document.createElement('div');
+
                 let currentUser = login.value;
                 div.innerText = 'Hello in our chat: '+login.value;
                 logbtn.remove();
@@ -51,12 +53,16 @@
                     e.preventDefault();
                     socket.emit('message', inputText.value);
                     inputText.value = '';
+
                 };
                 
                 socket.emit('nickname', input.value, response => {
                     response.map(function (message) {
+
                         drawMessage(message);
                     });
+
+
                     console.log('chat history', response);
                 });
 
