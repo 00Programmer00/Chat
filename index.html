@@ -7,83 +7,74 @@
 
 </head>
 <body>
-    <header class="contact">
-        <section class="contact--details" id="Head">
-            <h1 class="contact--details__name online">Flex-box Chat!</h1>
-            <input type="text" placeholder="Login..." id="Login">
-            <button onclick="connect()" id="logbtn">Log in</button>
-        </section>
-    </header>
-    <section class="messages">
-        <section id="messagesSection">
-            <h3 class="msg--date">Today</h3>
-        </section>
-
+<header class="contact">
+    <section class="contact--details" id="Head">
+        <h1 class="contact--details__name online">Flex-box Chat!</h1>
+        <input type="text" placeholder="Login..." id="Login">
+        <button onclick="connect()" id="logbtn">Log in</button>
     </section>
-    <form action="">
-        <input type="text" placeholder="Your message" id="inputField">
-        <button id="Send" onclick="newMessage(event)">Send</button>
-    </form>
+</header>
+<section class="messages">
+    <section id="messagesSection">
+        <h3 class="msg--date">Today</h3>
+    </section>
 
-    <script src="http://web.bidon-tech.com:65060/socket.io/socket.io.js"></script>
-    <script>
-        let that = this;
-        let inputText = document.getElementById('inputField');
-        let input = document.getElementById('Login');
-        function connect() {
-            let socket = io('http://web.bidon-tech.com:65060');
+</section>
+<form action="">
+    <input type="text" placeholder="Your message" id="inputField">
+    <button id="Send" onclick="newMessage(event)">Send</button>
+</form>
 
-            socket.on('connect', function () {
-                console.log('connected');
-                let login = document.getElementById('Login');
-                let logbtn = document.getElementById('logbtn');
-                let head = document.getElementById('Head');
-                let div = document.createElement('div');
-                div.innerText = 'Hello in our chat: '+login.value;
-                logbtn.remove();
-                login.remove();
-                head.appendChild(div);
+<script src="http://web.bidon-tech.com:65060/socket.io/socket.io.js"></script>
+<script>
+    let that = this;
+    let inputText = document.getElementById('inputField');
+    let input = document.getElementById('Login');
+    function connect() {
+        let socket = io('http://web.bidon-tech.com:65060');
+        socket.on('connect', function () {
+            console.log('connected');
+            let login = document.getElementById('Login');
+            let logbtn = document.getElementById('logbtn');
+            let head = document.getElementById('Head');
+            let div = document.createElement('div');
+            let currentUser = login.value;
+            div.innerText = 'Hello in our chat: '+login.value;
+            logbtn.remove();
+            login.remove();
+            head.appendChild(div);
+            that.newMessage = (e) =>{
+                e.preventDefault();
+                socket.emit('message', inputText.value);
+                inputText.value = '';
 
-
-                that.newMessage = (e) =>{
-                    console.log("Hello");
-                    e.preventDefault();
-                    socket.emit('message', inputText.value);
-                    let div = document.createElement('div');
-                    div.className = 'msg msg--me';
-                    let quote = document.createElement('blockquote');
-                    quote.innerText = inputText.value;
-                    div.appendChild(quote);
-                    let section = document.getElementById('messagesSection');
-                    section.appendChild(div);
-                };
-
-                socket.emit('nickname', input.value, response => {
-                    response.map(function (message) {
-                        let div = document.createElement('div');
-                        div.className = 'msg msg--them';
-                        let quote = document.createElement('blockquote');
-                        quote.innerText = 'User: ' + message.nickname + '\n ' + message.message;
-                        div.appendChild(quote);
-                        let section = document.getElementById('messagesSection');
-                        section.appendChild(div);
-                    });
-
-                    console.log('chat history', response);
+            };
+            socket.emit('nickname', input.value, response => {
+                response.map(function (message) {
+                    drawMessage(message);
                 });
-
-                socket.on('online', online => {
-                    console.log('server online', online);
-                });
-
-                socket.on('message', message => {
-                    console.log('new message', message);
-                });
-
+                console.log('chat history', response);
             });
-        }
+            socket.on('online', online => {
+                console.log('server online', online);
+            });
+            socket.on('message', message => {
+                drawMessage(message);
+            });
+            function drawMessage(message){
 
-    </script>
+                let div = document.createElement('div');
+                div.className = 'msg ' + (message.nickname === currentUser ? 'msg--me' : 'msg--them');
+                let quote = document.createElement('blockquote');
+                quote.innerText = 'User: ' + message.nickname + '\n ' + message.message;
+                div.appendChild(quote);
+                let section = document.getElementById('messagesSection');
+                section.appendChild(div);
+
+            }
+        });
+    }
+</script>
 
 </body>
 </html>
