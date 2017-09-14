@@ -7,74 +7,86 @@
 
 </head>
 <body>
-<header class="contact">
-    <section class="contact--details" id="Head">
-        <h1 class="contact--details__name online">Flex-box Chat!</h1>
-        <input type="text" placeholder="Login..." id="Login">
-        <button onclick="connect()" id="logbtn">Log in</button>
+    <header class="contact">
+        <section class="contact--details" id="Head">
+            <h1 class="contact--details__name online">Flex-box Chat!</h1>
+            <input type="text" placeholder="Login..." id="Login">
+            <button onclick="connect()" id="logbtn">Log in</button>
+        </section>
+    </header>
+    <section class="messages" id="messagesDiv">
+
+        <section id="messagesSection">
+            <h3 class="msg--date">Today</h3>
+        </section>
+
     </section>
-</header>
-<section class="messages">
-    <section id="messagesSection">
-        <h3 class="msg--date">Today</h3>
-    </section>
+    <form action="">
+        <input type="text" placeholder="Your message" id="inputField">
+        <button id="Send" onclick="newMessage(event)">Send</button>
+    </form>
 
-</section>
-<form action="">
-    <input type="text" placeholder="Your message" id="inputField">
-    <button id="Send" onclick="newMessage(event)">Send</button>
-</form>
+    <script src="http://web.bidon-tech.com:65060/socket.io/socket.io.js"></script>
+    <script>
+        let that = this;
+        let inputText = document.getElementById('inputField');
+        let input = document.getElementById('Login');
+        function connect() {
+            let socket = io('http://web.bidon-tech.com:65060');
+            socket.on('connect', function () {
+                console.log('connected');
+                let login = document.getElementById('Login');
+                let logbtn = document.getElementById('logbtn');
+                let head = document.getElementById('Head');
+                let div = document.createElement('div');
 
-<script src="http://web.bidon-tech.com:65060/socket.io/socket.io.js"></script>
-<script>
-    let that = this;
-    let inputText = document.getElementById('inputField');
-    let input = document.getElementById('Login');
-    function connect() {
-        let socket = io('http://web.bidon-tech.com:65060');
-        socket.on('connect', function () {
-            console.log('connected');
-            let login = document.getElementById('Login');
-            let logbtn = document.getElementById('logbtn');
-            let head = document.getElementById('Head');
-            let div = document.createElement('div');
-            let currentUser = login.value;
-            div.innerText = 'Hello in our chat: '+login.value;
-            logbtn.remove();
-            login.remove();
-            head.appendChild(div);
-            that.newMessage = (e) =>{
-                e.preventDefault();
-                socket.emit('message', inputText.value);
-                inputText.value = '';
+                let currentUser = login.value;
+                div.innerText = 'Hello in our chat: '+login.value;
+                logbtn.remove();
+                login.remove(); 
+                head.appendChild(div);
+                function scrollToBottom() {
+                    let body = document.querySelector('#messagesDiv');
+                    body.scrollTop = body.scrollHeight
+                }
+                that.newMessage = (e) =>{
+                    e.preventDefault();
+                    socket.emit('message', inputText.value);
+                    inputText.value = '';
 
-            };
-            socket.emit('nickname', input.value, response => {
-                response.map(function (message) {
+                };
+                
+                socket.emit('nickname', input.value, response => {
+                    response.map(function (message) {
+
+                        drawMessage(message);
+                    });
+
+
+                    console.log('chat history', response);
+                });
+
+                socket.on('online', online => {
+                    console.log('server online', online);
+                });
+                socket.on('message', message => {
                     drawMessage(message);
                 });
-                console.log('chat history', response);
-            });
-            socket.on('online', online => {
-                console.log('server online', online);
-            });
-            socket.on('message', message => {
-                drawMessage(message);
-            });
-            function drawMessage(message){
+                
 
-                let div = document.createElement('div');
-                div.className = 'msg ' + (message.nickname === currentUser ? 'msg--me' : 'msg--them');
-                let quote = document.createElement('blockquote');
-                quote.innerText = 'User: ' + message.nickname + '\n ' + message.message;
-                div.appendChild(quote);
-                let section = document.getElementById('messagesSection');
-                section.appendChild(div);
-
-            }
-        });
-    }
-</script>
+                function drawMessage(message){
+                    let div = document.createElement('div');
+                    div.className = 'msg ' + (message.nickname === currentUser ? 'msg--me' : 'msg--them');
+                    let quote = document.createElement('blockquote');
+                    quote.innerText = 'User: ' + message.nickname + '\n ' + message.message;
+                    div.appendChild(quote);
+                    let section = document.getElementById('messagesSection');
+                    section.appendChild(div); 
+                    scrollToBottom ();
+                }
+            });
+        }
+    </script>
 
 </body>
 </html>
